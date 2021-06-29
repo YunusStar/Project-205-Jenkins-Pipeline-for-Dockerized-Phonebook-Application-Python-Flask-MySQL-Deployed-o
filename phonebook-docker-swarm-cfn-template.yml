@@ -158,7 +158,7 @@ Resources:
             cd /home/ec2-user/.docker
             echo '{"credsStore": "ecr-login"}' > config.json
 ​
-DockerManager1:
+  DockerManager1:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0ab4d1e9cf9a1215a

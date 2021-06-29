@@ -11,7 +11,7 @@ pipeline {
         APP_REPO_NAME = "clarusway-repo/phonebook-app"
         AWS_STACK_NAME = "Davids-Phonebook-App-${BUILD_NUMBER}"
         CFN_TEMPLATE = "phonebook-docker-swarm-cfn-template.yml"
-        CFN_KEYPAIR = "davidskey.pem"
+        CFN_KEYPAIR = "Firstkey.pem"
         APP_NAME = "phonebook"
         HOME_FOLDER = "/home/ec2-user"
         GIT_FOLDER = sh(script:'echo ${GIT_URL} | sed "s/.*\\///;s/.git$//"', returnStdout:true).trim()
@@ -48,7 +48,7 @@ pipeline {
                 while(true) {
                         
                         echo "Docker Grand Master is not UP and running yet. Will try to reach again after 10 seconds..."
-                        sleep(10s)
+                        sleep(10)
                         ip = sh(script:'aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-grand-master Name=tag-value,Values=${AWS_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text | sed "s/\\s*None\\s*//g"', returnStdout:true).trim()
                         if (ip.length() >= 7) {
                             echo "Docker Grand Master Public Ip Address Found: $ip"

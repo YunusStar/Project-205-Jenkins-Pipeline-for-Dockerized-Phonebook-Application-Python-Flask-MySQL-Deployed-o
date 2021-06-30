@@ -3,8 +3,9 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >
   This Cloudformation Template deploys Phonebook Application to five Docker Machines on EC2 Instances which are ready for Docker Swarm operations. Docker Machines will run on Amazon Linux 2 with custom security group allowing SSH (22), HTTP (80) UDP (4789, 7946), and TCP(2377, 7946, 8080) connections from anywhere.
   User needs to select appropriate key name when launching the template.
+
 Parameters:
-  KeyPairName: #Will be used in Jenkins too!!!
+  KeyPairName:
     Description: Enter the name of your Key Pair for SSH connections.
     Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: Must one of the existing EC2 KeyPair
@@ -26,7 +27,7 @@ Resources:
             Action:
               - ec2:DescribeInstances
             Resource: "*"
-
+  
   EC2InstanceConnect:
     Type: "AWS::IAM::Role"
     Properties:
@@ -79,7 +80,6 @@ Resources:
           FromPort: 8080
           ToPort: 8080
           CidrIp: 0.0.0.0/0
-
   ManagerLT:
     Type: "AWS::EC2::LaunchTemplate"
     Properties:
@@ -94,30 +94,30 @@ Resources:
         UserData:
           Fn::Base64: 
             !Sub |
-            #! /bin/bash
-            yum update -y
-            amazon-linux-extras install docker -y
-            systemctl start docker
-            systemctl enable docker
-            usermod -a -G docker ec2-user
-            curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" \
-            -o /usr/local/bin/docker-compose
-            chmod +x /usr/local/bin/docker-compose
-            yum install python3 -y
-            amazon-linux-extras install epel -y
-            yum install python-pip -y
-            pip install ec2instanceconnectcli
-            eval "$(mssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  \
-            --region ${AWS::Region} ${DockerManager1} docker swarm join-token manager | grep -i 'docker')"
-            # uninstall aws cli version 1
-            rm -rf /bin/aws
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install
-            yum install amazon-ecr-credential-helper -y
-            mkdir -p /home/ec2-user/.docker
-            cd /home/ec2-user/.docker
-            echo '{"credsStore": "ecr-login"}' > config.json
+              #! /bin/bash
+              yum update -y
+              amazon-linux-extras install docker -y
+              systemctl start docker
+              systemctl enable docker
+              usermod -a -G docker ec2-user
+              curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" \
+              -o /usr/local/bin/docker-compose
+              chmod +x /usr/local/bin/docker-compose
+              yum install python3 -y
+              amazon-linux-extras install epel -y
+              yum install python-pip -y
+              pip install ec2instanceconnectcli
+              eval "$(mssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  \
+                --region ${AWS::Region} ${DockerManager1} docker swarm join-token manager | grep -i 'docker')"
+              # uninstall aws cli version 1
+              rm -rf /bin/aws
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              ./aws/install
+              yum install amazon-ecr-credential-helper -y
+              mkdir -p /home/ec2-user/.docker
+              cd /home/ec2-user/.docker
+              echo '{"credsStore": "ecr-login"}' > config.json
   WorkerLT:
     Type: "AWS::EC2::LaunchTemplate"
     Properties:
@@ -132,31 +132,30 @@ Resources:
         UserData:
           Fn::Base64: 
             !Sub |
-            #! /bin/bash
-            yum update -y
-            amazon-linux-extras install docker -y
-            systemctl start docker
-            systemctl enable docker
-            usermod -a -G docker ec2-user
-            curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" \
-            -o /usr/local/bin/docker-compose
-            chmod +x /usr/local/bin/docker-compose
-            yum install python3 -y
-            amazon-linux-extras install epel -y
-            yum install python-pip -y
-            pip install ec2instanceconnectcli
-            eval "$(mssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  \
-            --region ${AWS::Region} ${DockerManager1} docker swarm join-token worker | grep -i 'docker')"
-            # uninstall aws cli version 1
-            rm -rf /bin/aws
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install
-            yum install amazon-ecr-credential-helper -y
-            mkdir -p /home/ec2-user/.docker
-            cd /home/ec2-user/.docker
-            echo '{"credsStore": "ecr-login"}' > config.json
-
+              #! /bin/bash
+              yum update -y
+              amazon-linux-extras install docker -y
+              systemctl start docker
+              systemctl enable docker
+              usermod -a -G docker ec2-user
+              curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" \
+              -o /usr/local/bin/docker-compose
+              chmod +x /usr/local/bin/docker-compose
+              yum install python3 -y
+              amazon-linux-extras install epel -y
+              yum install python-pip -y
+              pip install ec2instanceconnectcli
+              eval "$(mssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no  \
+                --region ${AWS::Region} ${DockerManager1} docker swarm join-token worker | grep -i 'docker')"
+              # uninstall aws cli version 1
+              rm -rf /bin/aws
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              ./aws/install
+              yum install amazon-ecr-credential-helper -y
+              mkdir -p /home/ec2-user/.docker
+              cd /home/ec2-user/.docker
+              echo '{"credsStore": "ecr-login"}' > config.json
   DockerManager1:
     Type: AWS::EC2::Instance
     Properties:
@@ -193,7 +192,7 @@ Resources:
             --constraint=node.role==manager \
             --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
             dockersamples/visualizer
-                    # uninstall aws cli version 1
+          # uninstall aws cli version 1
           rm -rf /bin/aws
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
@@ -202,7 +201,6 @@ Resources:
           mkdir -p /home/ec2-user/.docker
           cd /home/ec2-user/.docker
           echo '{"credsStore": "ecr-login"}' > config.json
-
   DockerManager2:
     Type: AWS::EC2::Instance
     DependsOn:
@@ -218,7 +216,6 @@ Resources:
           Value: !Sub Docker Manager 2nd of ${AWS::StackName}
         - Key: project
           Value: "205"
-
   DockerManager3:
     Type: AWS::EC2::Instance
     DependsOn:
@@ -234,7 +231,6 @@ Resources:
           Value: !Sub Docker Manager 3rd of ${AWS::StackName}
         - Key: project
           Value: "205"
-
   DockerWorker1:
     Type: AWS::EC2::Instance
     DependsOn:
@@ -250,7 +246,6 @@ Resources:
           Value: !Sub Docker Worker 1st of ${AWS::StackName}
         - Key: project
           Value: "205"
-
   DockerWorker2:
     Type: AWS::EC2::Instance
     DependsOn:
@@ -266,7 +261,6 @@ Resources:
           Value: !Sub Docker Worker 2nd of ${AWS::StackName}
         - Key: project
           Value: "205" 
-
 Outputs:
   1stDockerManagerDashboard:
     Description: Dashboard for Docker Swarm
